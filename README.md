@@ -1,5 +1,5 @@
 # ASCENDING SAM AWS demo by James Whyte
-This project serves as a demostration of using SAM AWS for ASCENDING to delpoy a serverless hello-world application.
+This project serves as a demostration of using SAM AWS to delpoy a serverless hello-world application.
 
 ## Usage
 The AWS Serverless Application Model (AWS SAM) is an open-source framework that you can use to build serverless applications on AWS.
