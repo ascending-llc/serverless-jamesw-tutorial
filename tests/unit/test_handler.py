@@ -8,7 +8,8 @@ def apigw_event():
     # load the event.json and return it as a json
     with open('./events/event.json') as f:
         data = json.load(f)
-   
+        return data
+
 
 def test_lambda_handler(apigw_event, mocker):
 
@@ -19,4 +20,3 @@ def test_lambda_handler(apigw_event, mocker):
     assert "message" in ret["body"]
     assert data["message"] == "hello world"
     # assert "location" in data.dict_keys()
-
