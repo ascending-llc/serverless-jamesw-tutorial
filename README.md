@@ -4,7 +4,13 @@ This project serves as a demostration of using SAM AWS for ASCENDING to delpoy a
 ## Usage
 The AWS Serverless Application Model (AWS SAM) is an open-source framework that you can use to build serverless applications on AWS.
 
-A serverless application is a combination of Lambda functions, event sources, and other resources that work together to perform tasks. Note that a serverless application is more than just a Lambda function—it can include additional resources such as APIs, databases, and event source mappings.
+A serverless application is a combination of:
+- Lambda functions
+- Event source
+- CloudFormation template
+- Test
+
+Note: SAM is more than just a Lambda function—it can include additional resources such as APIs, databases, and event source mappings.
 
 ## Application
 The sample application provides a REST API (with API Gateway) with a single endpoint. When this endpoint is requested, a Lambda function is triggered.
