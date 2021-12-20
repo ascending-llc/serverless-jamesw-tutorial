@@ -25,7 +25,7 @@ Creating AWS account, AWS Identity and Access Management (IAM) permissions, and 
 For sandboxing and testing on local machine one can use a docker image.
 
 ## Deloy
-To deploy the application to AWS with the SAM CLI:
+To deploy the application to AWS use SAM CLI with the following:
 
 ```python
 #Step 1 - Download a sample application
