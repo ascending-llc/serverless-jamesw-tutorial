@@ -1,4 +1,4 @@
-# ASCENDING Python demo by James Whyte
+# ASCENDING SAM AWS demo by James Whyte
 This project serves as a demostration of using SAM AWS for ASCENDING to delpoy a serverless hello-world application.
 
 ## Usage
