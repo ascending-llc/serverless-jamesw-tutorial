@@ -37,6 +37,20 @@ sam build
 sam deploy --guided
 ```
 
+These commands deploy your application to the AWS Cloud. It takes the deployment artifacts that you build with the sam build command, packages and uploads them to an Amazon Simple Storage Service (Amazon S3) bucket that the AWS SAM CLI creates, and deploys the application using AWS CloudFormation. In the output of the sam deploy command, you can see the changes being made to your AWS CloudFormation stack.
+
+# HTTP endpoint trigger
+If your application created an HTTP endpoint, the outputs that sam deploy generates also show you the endpoint URL for your test application. You can use curl to send a request to your application using that endpoint URL. For example:
+```
+curl https://<restapiid>.execute-api.us-east-1.amazonaws.com/Prod/hello/
+```
+After successfully deploying your application, you see output like the following:
+```
+ {"message": "hello world"}
+```
+
+If you see that message you've then succesfully uploaded your file to the AWS cloud.
+
 ## Critical files
 ```
 template.yaml: Contains the AWS SAM template that defines your application's AWS resources.
