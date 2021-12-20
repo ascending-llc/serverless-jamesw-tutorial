@@ -1,7 +1,7 @@
 ![name-of-you-image](https://raw.githubusercontent.com/weibeld/sam-hello-world/master/sam.png)
 
 # ASCENDING SAM AWS demo by James Whyte
-This project serves as a demostration of using SAM AWS to delpoy a serverless hello-world application.
+This project serves as a demostration of using SAM AWS to deploy a serverless hello-world application.
 
 ## Usage
 The AWS Serverless Application Model (AWS SAM) is an open-source framework that you can use to build serverless applications on AWS.
