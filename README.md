@@ -71,14 +71,6 @@ sam package [OPTIONS] [ARGS]
 
 I replaced ```[OPTIONS] [ARGS]``` with ```-t``` followed by the path where my AWS SAM template is located, as well as ```--s3-bucket``` followed by the name of the S3 created on my AWS console, ```--output-template-file``` followed by the path to the file where the command writes the packaged template. 
 
-## Key files
-- hello_world - Code for the application's Lambda function.
-- events - Invocation events that you can use to invoke the function.
-- tests - Unit tests for the application code. 
-- template.yaml - A template that defines the application's AWS resources.
-
-The application uses several AWS resources, including Lambda functions and an API Gateway API. These resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
-
 ## Tests
 
 Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
