@@ -1,3 +1,5 @@
+![name-of-you-image](https://raw.githubusercontent.com/weibeld/sam-hello-world/master/sam.png)
+
 # ASCENDING SAM AWS demo by James Whyte
 This project serves as a demostration of using SAM AWS to delpoy a serverless hello-world application.
 
