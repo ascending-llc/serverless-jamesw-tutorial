@@ -86,4 +86,5 @@ aws cloudformation delete-stack --stack-name python-demo
 
 ## Article
 This is an accompanying code repository of the following article:
+
 https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-package.html
