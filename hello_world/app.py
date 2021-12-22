@@ -1,42 +1,43 @@
 import json
-
-# import requests
-
+import boto3
 
 def lambda_handler(event, context):
-    """Sample pure Lambda function
 
-    Parameters
-    ----------
-    event: dict, required
-        API Gateway Lambda Proxy Input Format
+    client = boto3.resource('dynamodb')
+    table = client.Table('myFoodTable')
+    response = table.scan()
+    data = response['Items']
 
-        Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
+    if event['httpMethod'] == 'GET':
 
-    context: object, required
-        Lambda Context runtime methods and attributes
+        return {"statusCode": 200,
+        "body": json.dumps({"message": data})
+        }
+        
+    elif event['httpMethod'] == 'POST':
+        
+        body = event['body']
+        loaded_body = json.loads(body)
+        season = loaded_body['season']
+        country = loaded_body['country']
+        name = loaded_body['name']
+        FoodId = name + country
 
-        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
+        for i in data:
+            if i['FoodID'] == FoodId:
+                return {"StatusCode": 400,
+                        "body": json.dumps({"message": "FoodId already in the db"})
+                }
 
-    Returns
-    ------
-    API Gateway Lambda Proxy Output Format: dict
+        item = {"FoodID": FoodId,
+                "county": country,
+                "season": season,
+                "name": name}
 
-        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-    """
+        table.put_item(Item=item)
+        
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"message": "added to db"})
+        }
 
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
-
-    #     raise e
-
-    return {
-        "statusCode": 200,
-        "body": json.dumps({
-            "message": "hello world",
-            # "location": ip.text.replace("\n", "")
-        }),
-    }
