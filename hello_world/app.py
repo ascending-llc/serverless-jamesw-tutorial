@@ -1,42 +1,48 @@
 import json
-
-# import requests
-
+import boto3
 
 def lambda_handler(event, context):
-    """Sample pure Lambda function
 
-    Parameters
-    ----------
-    event: dict, required
-        API Gateway Lambda Proxy Input Format
+    client = boto3.resource('dynamodb')
+    table = client.Table('myFoodTable')
+    response = table.scan()
+    data = response['Items']
+    
+    if event['httpMethod'] == 'GET':
 
-        Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
+        return {
+            "statusCode": 200,
+            "body": json.dumps({
+                "message": data
+            }),
+        }
+        
+    elif event['httpMethod'] == 'POST':
+        body = event['body']
+        loaded_body = json.loads(body)
+        season = loaded_body['season']
+        country = loaded_body['country']
+        name = loaded_body['name']
+        FoodId = name + country
 
-    context: object, required
-        Lambda Context runtime methods and attributes
+        for i in data:
+            if i['FoodID'] == FoodId:
+                return {
+                    "statusCode": 400,
+                    "body": json.dumps({
+                        "message": i
+                    }),
+                }
+            
 
-        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
-
-    Returns
-    ------
-    API Gateway Lambda Proxy Output Format: dict
-
-        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-    """
-
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
-
-    #     raise e
-
-    return {
-        "statusCode": 200,
-        "body": json.dumps({
-            "message": "hello world",
-            # "location": ip.text.replace("\n", "")
-        }),
-    }
+        item = {"FoodID": FoodId,
+                "county": country,
+                "season": season,
+                "name": name}
+        
+        table.put_item(Item=item)
+        
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"message": item})
+        }
