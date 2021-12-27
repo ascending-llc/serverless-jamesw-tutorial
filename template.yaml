@@ -69,13 +69,9 @@ Resources:
                 -
                   Effect: Allow
                   Action:
-                    - cloudwatch:*
-                    - s3:*
-                    - logs:*
-                    - ssm:*
-                    - dynamodb:*
-                    - cognito-idp:*
-                    - es:*
-                    - ec2:*
+                    - dynamodb:CreateTable
+                    - dynamodb:GetItem
+                    - dynamodb:PutItem
+                    - dynamodb:Scan
                     - lambda:InvokeFunction
                   Resource: "*"
