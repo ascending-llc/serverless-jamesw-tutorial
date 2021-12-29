@@ -1,9 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  python-demo
-
-  Sample SAM Template for python-demo
 
 Globals:
   Function:
@@ -37,15 +34,50 @@ Resources:
         - x86_64
       Events:
         HelloWorld:
-          Type: Api 
+          Type: Api
           Properties:
+            RestApiId: !Ref MyApi
             Path: /hello
             Method: get
+
         HelloWorldFood:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApi
             Path: /hello
             Method: post
+
+  MyCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: sam-cognito-pool
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+
+  MyCognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref MyCognitoUserPool
+      ClientName: sam-cognito-client
+      GenerateSecret: false
+
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: MyCognitoAuthorizer
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn: !GetAtt MyCognitoUserPool.Arn
 
   LambdaRole:
     Type: AWS::IAM::Role
