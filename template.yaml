@@ -37,14 +37,14 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MyApi
-            Path: /hello
+            Path: /get-all-foods
             Method: get
 
         HelloWorldFood:
           Type: Api
           Properties:
             RestApiId: !Ref MyApi
-            Path: /hello
+            Path: /create-food
             Method: post
 
   MyCognitoUserPool:
@@ -106,4 +106,3 @@ Resources:
                     - dynamodb:PutItem
                     - dynamodb:Scan
                     - lambda:InvokeFunction
-                  Resource: "*"
