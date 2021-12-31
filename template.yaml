@@ -37,16 +37,50 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref MyApi
-            Path: /get-all-foods
+            Path: /foods
             Method: get
 
         HelloWorldFood:
           Type: Api
           Properties:
             RestApiId: !Ref MyApi
-            Path: /create-food
+            Path: /food
             Method: post
 
+  SignUpFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: signup/
+      Handler: signup.lambda_handler
+      Role: !GetAtt LambdaRole.Arn
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        SingingUp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SignUpApi
+            Path: /user
+            Method: post
+
+  LoginUpFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: signup/
+      Handler: login.lambda_handler
+      Role: !GetAtt LambdaRole.Arn
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        LoggingIn:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SignUpApi
+            Path: /user-info
+            Method: post
+  
   MyCognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -75,6 +109,19 @@ Resources:
       Cors: "'*'"
       Auth:
         DefaultAuthorizer: MyCognitoAuthorizer
+        
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn: !GetAtt MyCognitoUserPool.Arn
+
+  SignUpApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: MyCognitoAuthorizer
+        
         Authorizers:
           MyCognitoAuthorizer:
             UserPoolArn: !GetAtt MyCognitoUserPool.Arn
@@ -101,8 +148,12 @@ Resources:
                 -
                   Effect: Allow
                   Action:
+                    - cognito-idp:AdminInitiateAuth
                     - dynamodb:CreateTable
                     - dynamodb:GetItem
                     - dynamodb:PutItem
                     - dynamodb:Scan
                     - lambda:InvokeFunction
+                  Resource:
+                    - !GetAtt DBTABLE.Arn
+                    - !GetAtt MyCognitoUserPool.Arn
