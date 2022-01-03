@@ -1,8 +1,9 @@
 import boto3
 import json
+import os
 
 def lambda_handler(event, context):
-
+    
     loaded_body = json.loads(event["body"])
     username = loaded_body["username"]
     password = loaded_body["password"]
@@ -11,8 +12,8 @@ def lambda_handler(event, context):
 
     # this handles the authorization of user
     resp = client.admin_initiate_auth(
-        UserPoolId="us-west-1_6vx2GPTnF",
-        ClientId="61po7rn17jr6kngjfmpq3d2r6b",
+        UserPoolId=os.environ['USER_POOL_ID'],
+        ClientId=os.environ['USER_POOL_CLIENT_ID'],
         AuthFlow='ADMIN_NO_SRP_AUTH',
         AuthParameters={
             "USERNAME": username,

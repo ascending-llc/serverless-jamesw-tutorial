@@ -50,6 +50,10 @@ Resources:
   SignUpFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Environment:
+        Variables:
+          USER_POOL_CLIENT_ID:
+            Ref: CognitoUserPoolClient
       CodeUri: signup/
       Handler: signup.lambda_handler
       Role: !GetAtt LambdaRole.Arn
@@ -69,6 +73,12 @@ Resources:
     Properties:
       CodeUri: signup/
       Handler: login.lambda_handler
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: CognitoUserPool
+          USER_POOL_CLIENT_ID:
+            Ref: CognitoUserPoolClient
       Role: !GetAtt LambdaRole.Arn
       Runtime: python3.9
       Architectures:
@@ -81,25 +91,29 @@ Resources:
             Path: /user-info
             Method: post
   
-  MyCognitoUserPool:
+  CognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: sam-cognito-pool
+      UserPoolName: sam-user-pool
       Policies:
         PasswordPolicy:
           MinimumLength: 8
       UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
         - email
       Schema:
         - AttributeDataType: String
           Name: email
           Required: false
 
-  MyCognitoUserPoolClient:
+  CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      UserPoolId: !Ref MyCognitoUserPool
-      ClientName: sam-cognito-client
+      ClientName: sam-user-pool-client
+      UserPoolId: !Ref CognitoUserPool
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
       GenerateSecret: false
 
   MyApi:
@@ -112,7 +126,7 @@ Resources:
         
         Authorizers:
           MyCognitoAuthorizer:
-            UserPoolArn: !GetAtt MyCognitoUserPool.Arn
+            UserPoolArn: !GetAtt CognitoUserPool.Arn
 
   SignUpApi:
     Type: AWS::Serverless::Api
@@ -124,7 +138,7 @@ Resources:
         
         Authorizers:
           MyCognitoAuthorizer:
-            UserPoolArn: !GetAtt MyCognitoUserPool.Arn
+            UserPoolArn: !GetAtt CognitoUserPool.Arn
 
   LambdaRole:
     Type: AWS::IAM::Role
@@ -156,4 +170,4 @@ Resources:
                     - lambda:InvokeFunction
                   Resource:
                     - !GetAtt DBTABLE.Arn
-                    - !GetAtt MyCognitoUserPool.Arn
+                    - !GetAtt CognitoUserPool.Arn
