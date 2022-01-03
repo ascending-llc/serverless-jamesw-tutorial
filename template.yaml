@@ -1,9 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  python-demo
-
-  Sample SAM Template for python-demo
 
 Globals:
   Function:
@@ -37,15 +34,111 @@ Resources:
         - x86_64
       Events:
         HelloWorld:
-          Type: Api 
+          Type: Api
           Properties:
-            Path: /hello
+            RestApiId: !Ref MyApi
+            Path: /foods
             Method: get
+
         HelloWorldFood:
           Type: Api
           Properties:
-            Path: /hello
+            RestApiId: !Ref MyApi
+            Path: /food
             Method: post
+
+  SignUpFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          USER_POOL_CLIENT_ID:
+            Ref: CognitoUserPoolClient
+      CodeUri: signup/
+      Handler: signup.lambda_handler
+      Role: !GetAtt LambdaRole.Arn
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        SingingUp:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SignUpApi
+            Path: /user
+            Method: post
+
+  LoginUpFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: signup/
+      Handler: login.lambda_handler
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: CognitoUserPool
+          USER_POOL_CLIENT_ID:
+            Ref: CognitoUserPoolClient
+      Role: !GetAtt LambdaRole.Arn
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        LoggingIn:
+          Type: Api
+          Properties:
+            RestApiId: !Ref SignUpApi
+            Path: /user-info
+            Method: post
+  
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: sam-user-pool
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: sam-user-pool-client
+      UserPoolId: !Ref CognitoUserPool
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
+      GenerateSecret: false
+
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: MyCognitoAuthorizer
+        
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn: !GetAtt CognitoUserPool.Arn
+
+  SignUpApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: MyCognitoAuthorizer
+        
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn: !GetAtt CognitoUserPool.Arn
 
   LambdaRole:
     Type: AWS::IAM::Role
@@ -69,9 +162,12 @@ Resources:
                 -
                   Effect: Allow
                   Action:
+                    - cognito-idp:AdminInitiateAuth
                     - dynamodb:CreateTable
                     - dynamodb:GetItem
                     - dynamodb:PutItem
                     - dynamodb:Scan
                     - lambda:InvokeFunction
-                  Resource: "*"
+                  Resource:
+                    - !GetAtt DBTABLE.Arn
+                    - !GetAtt CognitoUserPool.Arn
