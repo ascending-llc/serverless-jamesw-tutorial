@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-
 Globals:
   Function:
     Timeout: 3
@@ -23,6 +22,7 @@ Resources:
         WriteCapacityUnits: "5"
       TableName: "myFoodTable"
 
+
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -38,14 +38,19 @@ Resources:
           Properties:
             RestApiId: !Ref MyApi
             Path: /foods
-            Method: get
+            Method: GET
+            Auth:
+              Authorizer: MyAuthorizer
 
         HelloWorldFood:
           Type: Api
           Properties:
             RestApiId: !Ref MyApi
             Path: /food
-            Method: post
+            Method: POST
+            Auth:
+              Authorizer: MyAuthorizer
+
 
   SignUpFunction:
     Type: AWS::Serverless::Function
@@ -66,7 +71,8 @@ Resources:
           Properties:
             RestApiId: !Ref SignUpApi
             Path: /user
-            Method: post
+            Method: POST
+
 
   LoginUpFunction:
     Type: AWS::Serverless::Function
@@ -89,8 +95,9 @@ Resources:
           Properties:
             RestApiId: !Ref SignUpApi
             Path: /user-info
-            Method: post
-  
+            Method: POST
+
+
   CognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -107,6 +114,7 @@ Resources:
           Name: email
           Required: false
 
+
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
@@ -116,29 +124,47 @@ Resources:
         - ADMIN_NO_SRP_AUTH
       GenerateSecret: false
 
+
+  MyAuthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: authorizer/
+      Handler: handler.lambda_handler
+      Runtime: python3.9
+      FunctionName: my-authorizer-func
+
+
   MyApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
       Cors: "'*'"
       Auth:
-        DefaultAuthorizer: MyCognitoAuthorizer
-        
+        DefaultAuthorizer: MyAuthorizer
         Authorizers:
-          MyCognitoAuthorizer:
-            UserPoolArn: !GetAtt CognitoUserPool.Arn
+          MyAuthorizer:
+            FunctionArn: !GetAtt MyAuthFunction.Arn
+            Identity:
+               Header: authorizationToken
+
 
   SignUpApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
       Cors: "'*'"
-      Auth:
-        DefaultAuthorizer: MyCognitoAuthorizer
-        
-        Authorizers:
-          MyCognitoAuthorizer:
-            UserPoolArn: !GetAtt CognitoUserPool.Arn
+
+
+  ConfigLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    DependsOn:
+    - MyApi
+    - MyAuthFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref MyAuthFunction
+      Principal: apigateway.amazonaws.com
+
 
   LambdaRole:
     Type: AWS::IAM::Role

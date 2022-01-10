@@ -3,7 +3,7 @@ import json
 import os
 
 def lambda_handler(event, context):
-    
+
     loaded_body = json.loads(event["body"])
     username = loaded_body["username"]
     password = loaded_body["password"]
@@ -20,8 +20,16 @@ def lambda_handler(event, context):
             "PASSWORD": password
         }
     )
-    
+
+    # add username and password to dynamodb
+    # encode with username and password, jwt function
+    # inside the jwtAuthoizer funvtion, decode it and retrive udername nad password
+    # go in dynmodb to chevk if ther id user with swame udername andnpassword
+    # embred jwt to the user, jwt will be intercepted w\by authorizer
+    # authorizer is the interception
+
     # generating id token
+    # this should be a JWT token!
     id_token = resp["AuthenticationResult"]["IdToken"]
 
     # returning id token to caller

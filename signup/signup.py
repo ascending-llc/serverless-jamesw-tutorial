@@ -18,6 +18,7 @@ def lambda_handler(event, context):
         UserAttributes=[{"Name": "email", "Value": username}],
     )
 
+
     return {
         "statusCode": 200,
         "body": json.dumps({
